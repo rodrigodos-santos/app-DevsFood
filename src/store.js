@@ -4,11 +4,14 @@ import storage from 'redux-persist/lib/storage';
 
 import rootReducer from './reducers';
 
+/* Configurações dos reducers mantidos */
 const persistConfig = {
     key: 'root',
-    storage
+    storage,
+    whitelist: ['user']
 };
 
+/* Reducer com configurações */
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 let store = createStore(persistedReducer);
