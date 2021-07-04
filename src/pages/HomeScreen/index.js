@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useHistory } from "react-router-dom"
 import ReactTooltip from 'react-tooltip'
-import { 
-    Container, 
-    CategoryArea, 
+import {
+    Container,
+    CategoryArea,
     CategoryList,
     ProductArea,
     ProductList,
@@ -17,6 +17,8 @@ import Header from '../../components/Header'
 import CategoryItem from '../../components/CategoryItem'
 import ProductItem from '../../components/ProductItem'
 
+let searchTimer = null
+
 export default () => {
     const history = useHistory();
     const [headerSearch, setHeaderSearch] = useState('')
@@ -25,10 +27,11 @@ export default () => {
     const [totalPages, setTotalPages] = useState(0)
 
     const [activeCategory, setActiveCategory] = useState(0)
-    const [activePage, setActivePage] = useState(0)
+    const [activePage, setActivePage] = useState(1)
+    const [activeSearch, setActiveSearch] = useState('')
 
     const getProducts = async () => {
-        const prods = await api.getProducts()
+        const prods = await api.getProducts(activeCategory, activePage, activeSearch)
         if (prods.error == '') {
             setProducts(prods.result.data)
             setTotalPages(prods.result.pages) //seta a qtde de pages
@@ -36,24 +39,34 @@ export default () => {
         }
     }
 
+    /* Chamada para barra de pesquisa */
+    useEffect(() => {
+        clearTimeout(searchTimer)
+        searchTimer = setTimeout(() => {
+            setActiveSearch(headerSearch)
+        }, 2000)
+    }, [headerSearch])
+
+    /* Chamado para carregar as categorias */
     useEffect(() => {
         const getCategories = async () => {
             const cat = await api.getCategories()
             if (cat.error == '') {
                 setCategories(cat.result)
             }
-
+            /* Utilizado para dar um rebuild pois o tooltip 
+                iniciou antes dos itens carregarem */
             ReactTooltip.rebuild()
         }
         getCategories()
     }, [])
 
-    /* Chamada sempre que mudar a categoria ou a página, 
+    /* Chamada sempre que mudar a categoria, página ou pesquisa, 
         mudam os produtos */
     useEffect(() => {
         setProducts([])
         getProducts()
-    }, [activeCategory, activePage])
+    }, [activeCategory, activePage, activeSearch])
 
     return (
         <Container>
@@ -99,12 +112,12 @@ export default () => {
             {totalPages > 0 &&
                 <ProductPaginationArea>
                     {/*Cria um array com a quantidade de pages*/}
-                    {Array(8).fill(0).map((item, index) => (
-                        <ProductPaginationItem 
-                            key={index} 
+                    {Array(totalPages).fill(0).map((item, index) => (
+                        <ProductPaginationItem
+                            key={index}
                             active={activePage}
                             current={index + 1}
-                            onClick={()=> setActivePage(index+1)}
+                            onClick={() => setActivePage(index + 1)}
                         >
                             {index + 1}
                         </ProductPaginationItem>
