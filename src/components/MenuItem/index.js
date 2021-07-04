@@ -2,12 +2,12 @@ import React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { LinkArea, LinkIcon } from './styled';
 
-export default ({icon, link}) => {
+export default ({title, icon, link}) => {
     const history = useHistory();
     const location = useLocation();
 
     /* Compara a rota atual com o link de destino */
-    let isActive = location.pathname === link;
+    let isActive = location.pathname == link;
 
     /* Função utilizada para que o usuário possa abrir o link em 
     outra página sem erro e o clique não recarregue a página */
@@ -17,7 +17,7 @@ export default ({icon, link}) => {
     }
 
     return(
-        <LinkArea active={isActive} href={link} onClick={handleLinkClick}>
+        <LinkArea data-tip={title} data-for="tip-right" active={isActive} href={link} onClick={handleLinkClick}>
             <LinkIcon src={icon} />
         </LinkArea>
     );
